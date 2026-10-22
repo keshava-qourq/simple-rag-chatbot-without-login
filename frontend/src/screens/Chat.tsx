@@ -105,7 +105,8 @@ export default function Screen() {
         const docs = await fetchDocuments(uuid);
         if (!cancelled) setDocuments(Array.isArray(docs) ? docs : []);
       } catch (err) {
-        if (!cancelled) setDocsError(err && err.message ? err.message : "Failed to load documents.");
+        if (!cancelled)
+          setDocsError(err && err.message ? err.message : "Failed to load documents.");
       } finally {
         if (!cancelled) setDocsLoading(false);
       }
@@ -402,7 +403,9 @@ export default function Screen() {
                   style={{
                     border: thick,
                     borderRadius: brand.radius,
-                    boxShadow: "6px 6px 0 " + (isErrorStatus(status) ? brand.accentColor : brand.primaryColor),
+                    boxShadow:
+                      "6px 6px 0 " +
+                      (isErrorStatus(status) ? brand.accentColor : brand.primaryColor),
                     backgroundColor: brand.backgroundColor,
                   }}
                 >
@@ -427,7 +430,9 @@ export default function Screen() {
                     className="text-lg font-bold"
                     style={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}
                   >
-                    {doc.chunk_count ? doc.chunk_count + " CHUNKS" : formatBytes(doc.file_size_bytes)}
+                    {doc.chunk_count
+                      ? doc.chunk_count + " CHUNKS"
+                      : formatBytes(doc.file_size_bytes)}
                   </span>
                 </button>
                 {open === doc.id ? (
@@ -442,7 +447,9 @@ export default function Screen() {
                     <div
                       className="p-5 grid grid-cols-2 gap-x-8 gap-y-2 text-sm"
                       style={{
-                        borderBottom: isReadyStatus(status) ? "1px dashed " + brand.neutralColor : "none",
+                        borderBottom: isReadyStatus(status)
+                          ? "1px dashed " + brand.neutralColor
+                          : "none",
                       }}
                     >
                       <div>
@@ -453,13 +460,15 @@ export default function Screen() {
                         {formatBytes(doc.file_size_bytes)}
                       </div>
                       <div>
-                        <span style={{ color: brand.neutralColor }}>CHUNKS</span> {doc.chunk_count || 0}
+                        <span style={{ color: brand.neutralColor }}>CHUNKS</span>{" "}
+                        {doc.chunk_count || 0}
                       </div>
                       <div>
                         <span style={{ color: brand.neutralColor }}>STATUS</span> {status}
                       </div>
                       <div>
-                        <span style={{ color: brand.neutralColor }}>UPLOADED</span> {doc.created_at || "—"}
+                        <span style={{ color: brand.neutralColor }}>UPLOADED</span>{" "}
+                        {doc.created_at || "—"}
                       </div>
                       <div>
                         <span style={{ color: brand.neutralColor }}>LAST ACTIVITY</span>{" "}

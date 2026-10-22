@@ -10,7 +10,6 @@ from __future__ import annotations
 import io
 
 import pytest
-
 from conftest import build_docx, build_minimal_pdf
 
 

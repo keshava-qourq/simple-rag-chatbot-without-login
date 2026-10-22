@@ -7,9 +7,8 @@ import { Icons } from "@/lib/icons";
 import { brand } from "@/lib/brand";
 import { useNavigate } from "@/lib/navigate";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { Table } = UI;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const { Check, Users, Upload } = Icons;
 
 export default function Screen() {
@@ -32,7 +31,10 @@ export default function Screen() {
         { label: "Node.js", value: "v20.0.0 or later" },
         { label: "PostgreSQL", value: "v16+ with the pgvector extension" },
         { label: "MinIO (or S3-compatible storage)", value: "for uploaded file storage" },
-        { label: "Google AI API key", value: "with access to Gemini 2.5 Flash and gemini-embedding-001" },
+        {
+          label: "Google AI API key",
+          value: "with access to Gemini 2.5 Flash and gemini-embedding-001",
+        },
       ],
     },
     {
@@ -53,14 +55,34 @@ export default function Screen() {
       id: "env",
       title: "Environment Variables",
       vars: [
-        { name: "GEMINI_API_KEY", required: true, desc: "Google AI API key. Stored server-side only; never exposed to the client." },
-        { name: "DATABASE_URL", required: true, desc: "PostgreSQL connection string, e.g. postgres://user:pass@localhost:5432/ragchat" },
+        {
+          name: "GEMINI_API_KEY",
+          required: true,
+          desc: "Google AI API key. Stored server-side only; never exposed to the client.",
+        },
+        {
+          name: "DATABASE_URL",
+          required: true,
+          desc: "PostgreSQL connection string, e.g. postgres://user:pass@localhost:5432/ragchat",
+        },
         { name: "MINIO_ENDPOINT", required: true, desc: "MinIO or S3-compatible endpoint URL" },
         { name: "MINIO_ACCESS_KEY", required: true, desc: "MinIO access key" },
         { name: "MINIO_SECRET_KEY", required: true, desc: "MinIO secret key" },
-        { name: "MINIO_BUCKET", required: true, desc: "Bucket name for storing uploaded document files" },
-        { name: "PORT", required: false, desc: "Port for the application server. Defaults to 3000." },
-        { name: "CLEANUP_TTL_DAYS", required: false, desc: "Days of inactivity before a browser UUID's documents and embeddings are removed. Defaults to 30." },
+        {
+          name: "MINIO_BUCKET",
+          required: true,
+          desc: "Bucket name for storing uploaded document files",
+        },
+        {
+          name: "PORT",
+          required: false,
+          desc: "Port for the application server. Defaults to 3000.",
+        },
+        {
+          name: "CLEANUP_TTL_DAYS",
+          required: false,
+          desc: "Days of inactivity before a browser UUID's documents and embeddings are removed. Defaults to 30.",
+        },
       ],
     },
     {
@@ -73,8 +95,15 @@ export default function Screen() {
       items: [
         { label: "Extension", value: "pgvector" },
         { label: "Tables", value: "documents, chunks, user_activity" },
-        { label: "Vector column", value: "chunks.embedding — type vector(768), matching gemini-embedding-001 output dimensionality" },
-        { label: "Index", value: "ivfflat on chunks.embedding for approximate nearest-neighbor search" },
+        {
+          label: "Vector column",
+          value:
+            "chunks.embedding — type vector(768), matching gemini-embedding-001 output dimensionality",
+        },
+        {
+          label: "Index",
+          value: "ivfflat on chunks.embedding for approximate nearest-neighbor search",
+        },
       ],
     },
     {
@@ -87,7 +116,11 @@ export default function Screen() {
       items: [
         { label: "PDF", value: "application/pdf — text extracted server-side" },
         { label: "TXT", value: "text/plain — raw text read directly" },
-        { label: "DOCX", value: "application/vnd.openxmlformats-officedocument.wordprocessingml.document — text extracted server-side" },
+        {
+          label: "DOCX",
+          value:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document — text extracted server-side",
+        },
       ],
     },
     {
@@ -109,9 +142,15 @@ export default function Screen() {
       id: "api",
       title: "REST API Endpoints",
       items: [
-        { label: "POST /api/documents", value: "Upload a document. Requires a browser UUID and a supported file." },
+        {
+          label: "POST /api/documents",
+          value: "Upload a document. Requires a browser UUID and a supported file.",
+        },
         { label: "GET /api/documents", value: "List documents for a browser UUID." },
-        { label: "GET /api/documents/{id}/status", value: "Check processing status of a document." },
+        {
+          label: "GET /api/documents/{id}/status",
+          value: "Check processing status of a document.",
+        },
         { label: "DELETE /api/documents/{id}", value: "Delete a document and its embeddings." },
         { label: "POST /api/chat", value: "Submit a question. Requires a browser UUID." },
       ],
@@ -143,7 +182,14 @@ export default function Screen() {
   };
 
   return (
-    <div style={{ fontFamily: brand.fontBody, color: brand.primaryColor, backgroundColor: brand.backgroundColor, minHeight: "100%" }}>
+    <div
+      style={{
+        fontFamily: brand.fontBody,
+        color: brand.primaryColor,
+        backgroundColor: brand.backgroundColor,
+        minHeight: "100%",
+      }}
+    >
       <div className="px-6 py-10 md:px-12 md:py-14 max-w-5xl mx-auto">
         {/* Header */}
         <header className="mb-12">
@@ -151,26 +197,48 @@ export default function Screen() {
             Application Documentation&nbsp;&nbsp;/&nbsp;&nbsp;v1.0
           </div>
           <h1
-            style={{ ...serifHeading, fontSize: "3.25rem", lineHeight: 1.05, letterSpacing: "-0.02em", fontWeight: 700 }}
+            style={{
+              ...serifHeading,
+              fontSize: "3.25rem",
+              lineHeight: 1.05,
+              letterSpacing: "-0.02em",
+              fontWeight: 700,
+            }}
             className="mb-4"
           >
             Setup &amp; Configuration Guide
           </h1>
           <p
-            style={{ fontFamily: brand.fontBody, color: brand.neutralColor, fontSize: "0.9375rem", lineHeight: 1.6, maxWidth: "42rem" }}
+            style={{
+              fontFamily: brand.fontBody,
+              color: brand.neutralColor,
+              fontSize: "0.9375rem",
+              lineHeight: 1.6,
+              maxWidth: "42rem",
+            }}
           >
             Everything needed to deploy and run the RAG chatbot locally: prerequisites, environment
-            variables, database setup, supported formats, and the end-to-end workflow from upload to answer.
+            variables, database setup, supported formats, and the end-to-end workflow from upload to
+            answer.
           </p>
           <div style={{ ...dashedRule }} className="mt-8" />
         </header>
 
         {/* Table of contents */}
         <nav className="mb-14" aria-label="Contents">
-          <div style={monoLabel} className="mb-4">Contents</div>
-          <ol className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2" style={{ fontFamily: brand.fontBody, fontSize: "0.8125rem" }}>
+          <div style={monoLabel} className="mb-4">
+            Contents
+          </div>
+          <ol
+            className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2"
+            style={{ fontFamily: brand.fontBody, fontSize: "0.8125rem" }}
+          >
             {sections.map((s) => (
-              <li key={s.id} className="flex items-baseline gap-3" style={{ fontVariantNumeric: "tabular-nums" }}>
+              <li
+                key={s.id}
+                className="flex items-baseline gap-3"
+                style={{ fontVariantNumeric: "tabular-nums" }}
+              >
                 <span style={{ color: brand.neutralColor }}>{s.num}</span>
                 <a
                   href={"#" + s.id}
@@ -200,11 +268,21 @@ export default function Screen() {
                 >
                   {s.num}
                 </span>
-                <h2 style={{ ...serifHeading, fontSize: "1.875rem", lineHeight: 1.15, fontWeight: 700, margin: 0 }}>
+                <h2
+                  style={{
+                    ...serifHeading,
+                    fontSize: "1.875rem",
+                    lineHeight: 1.15,
+                    fontWeight: 700,
+                    margin: 0,
+                  }}
+                >
                   {s.title}
                 </h2>
               </div>
-              <div style={{ borderTop: `2px solid ${brand.primaryColor}`, marginBottom: "1.5rem" }} />
+              <div
+                style={{ borderTop: `2px solid ${brand.primaryColor}`, marginBottom: "1.5rem" }}
+              />
 
               {/* Body paragraphs */}
               {s.body && (
@@ -212,7 +290,12 @@ export default function Screen() {
                   {s.body.map((p, i) => (
                     <p
                       key={i}
-                      style={{ fontFamily: brand.fontBody, fontSize: "0.875rem", lineHeight: 1.7, color: brand.neutralColor }}
+                      style={{
+                        fontFamily: brand.fontBody,
+                        fontSize: "0.875rem",
+                        lineHeight: 1.7,
+                        color: brand.neutralColor,
+                      }}
                     >
                       {p}
                     </p>
@@ -227,12 +310,24 @@ export default function Screen() {
                     <div
                       key={i}
                       className="grid grid-cols-1 sm:grid-cols-[14rem_1fr] gap-1 sm:gap-6 py-3"
-                      style={{ borderBottom: `1px solid ${brand.primaryColor}22`, fontVariantNumeric: "tabular-nums" }}
+                      style={{
+                        borderBottom: `1px solid ${brand.primaryColor}22`,
+                        fontVariantNumeric: "tabular-nums",
+                      }}
                     >
-                      <div style={{ ...monoLabel, fontSize: "0.6875rem", color: brand.neutralColor }}>
+                      <div
+                        style={{ ...monoLabel, fontSize: "0.6875rem", color: brand.neutralColor }}
+                      >
                         {it.label}
                       </div>
-                      <div style={{ fontFamily: brand.fontBody, fontSize: "0.8125rem", color: brand.primaryColor, lineHeight: 1.5 }}>
+                      <div
+                        style={{
+                          fontFamily: brand.fontBody,
+                          fontSize: "0.8125rem",
+                          color: brand.primaryColor,
+                          lineHeight: 1.5,
+                        }}
+                      >
                         {it.value}
                       </div>
                     </div>
@@ -261,7 +356,14 @@ export default function Screen() {
                       >
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span style={{ fontFamily: brand.fontBody, fontSize: "0.875rem", lineHeight: 1.65, color: brand.primaryColor }}>
+                      <span
+                        style={{
+                          fontFamily: brand.fontBody,
+                          fontSize: "0.875rem",
+                          lineHeight: 1.65,
+                          color: brand.primaryColor,
+                        }}
+                      >
                         {step}
                       </span>
                     </li>
@@ -275,13 +377,35 @@ export default function Screen() {
                   <table className="w-full" style={{ fontVariantNumeric: "tabular-nums" }}>
                     <thead>
                       <tr style={{ borderBottom: `3px solid ${brand.primaryColor}` }}>
-                        <th style={{ ...monoLabel, textAlign: "left", padding: "0.75rem 1rem", fontSize: "0.625rem" }}>
+                        <th
+                          style={{
+                            ...monoLabel,
+                            textAlign: "left",
+                            padding: "0.75rem 1rem",
+                            fontSize: "0.625rem",
+                          }}
+                        >
                           Variable
                         </th>
-                        <th style={{ ...monoLabel, textAlign: "left", padding: "0.75rem 1rem", fontSize: "0.625rem", width: "6rem" }}>
+                        <th
+                          style={{
+                            ...monoLabel,
+                            textAlign: "left",
+                            padding: "0.75rem 1rem",
+                            fontSize: "0.625rem",
+                            width: "6rem",
+                          }}
+                        >
                           Required
                         </th>
-                        <th style={{ ...monoLabel, textAlign: "left", padding: "0.75rem 1rem", fontSize: "0.625rem" }}>
+                        <th
+                          style={{
+                            ...monoLabel,
+                            textAlign: "left",
+                            padding: "0.75rem 1rem",
+                            fontSize: "0.625rem",
+                          }}
+                        >
                           Description
                         </th>
                       </tr>
@@ -290,9 +414,20 @@ export default function Screen() {
                       {s.vars.map((v, i) => (
                         <tr
                           key={i}
-                          style={{ borderBottom: i < s.vars.length - 1 ? `1px solid ${brand.primaryColor}22` : "none" }}
+                          style={{
+                            borderBottom:
+                              i < s.vars.length - 1 ? `1px solid ${brand.primaryColor}22` : "none",
+                          }}
                         >
-                          <td style={{ padding: "0.75rem 1rem", fontFamily: brand.fontBody, fontSize: "0.8125rem", fontWeight: 600, whiteSpace: "nowrap" }}>
+                          <td
+                            style={{
+                              padding: "0.75rem 1rem",
+                              fontFamily: brand.fontBody,
+                              fontSize: "0.8125rem",
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
                             {v.name}
                           </td>
                           <td style={{ padding: "0.75rem 1rem" }}>
@@ -313,7 +448,15 @@ export default function Screen() {
                               {v.required ? "Required" : "Optional"}
                             </span>
                           </td>
-                          <td style={{ padding: "0.75rem 1rem", fontFamily: brand.fontBody, fontSize: "0.8125rem", color: brand.neutralColor, lineHeight: 1.55 }}>
+                          <td
+                            style={{
+                              padding: "0.75rem 1rem",
+                              fontFamily: brand.fontBody,
+                              fontSize: "0.8125rem",
+                              color: brand.neutralColor,
+                              lineHeight: 1.55,
+                            }}
+                          >
                             {v.desc}
                           </td>
                         </tr>
@@ -330,7 +473,8 @@ export default function Screen() {
         <footer className="mt-16 pt-8" style={{ borderTop: `2px solid ${brand.primaryColor}` }}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div style={monoLabel}>
-              RAG Chatbot&nbsp;&nbsp;&middot;&nbsp;&nbsp;Gemini 2.5 Flash&nbsp;&nbsp;&middot;&nbsp;&nbsp;gemini-embedding-001
+              RAG Chatbot&nbsp;&nbsp;&middot;&nbsp;&nbsp;Gemini 2.5
+              Flash&nbsp;&nbsp;&middot;&nbsp;&nbsp;gemini-embedding-001
             </div>
             <button
               onClick={() => navigate("chat")}
@@ -347,8 +491,14 @@ export default function Screen() {
                 color: brand.primaryColor,
                 cursor: "pointer",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = brand.accentColor; e.currentTarget.style.color = "#fff"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = brand.backgroundColor; e.currentTarget.style.color = brand.primaryColor; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = brand.accentColor;
+                e.currentTarget.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = brand.backgroundColor;
+                e.currentTarget.style.color = brand.primaryColor;
+              }}
               aria-label="Go to the chat interface"
             >
               Open Chat

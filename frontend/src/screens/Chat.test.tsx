@@ -119,7 +119,9 @@ describe("Chat screen upload", () => {
 
   it("renders the server's error message on a rejected upload", async () => {
     fetchDocuments.mockResolvedValue([]);
-    uploadDocument.mockRejectedValue(new UploadError("Only PDF, TXT, and DOCX files are accepted."));
+    uploadDocument.mockRejectedValue(
+      new UploadError("Only PDF, TXT, and DOCX files are accepted."),
+    );
     renderScreen();
     await waitFor(() => expect(fetchDocuments).toHaveBeenCalled());
 
