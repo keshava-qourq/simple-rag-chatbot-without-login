@@ -1,24 +1,24 @@
 <!-- sdlc:auto:start adr -->
-# ADR-0003: Use PostgreSQL 16 for Database
+# ADR-0003: Use PostgreSQL 16 with pgvector for Database
 
-Status: Proposed  
+Status: Accepted  
 Date: 2026-10-22
 
 ## Context and Problem Statement
 
-Which Database technology does the project use? Decided in architecture v1.
+Which Database technology does the project use? Decided in architecture v2.
 
 ## Considered Options
 
-- PostgreSQL 16
-- SQLite
-- MySQL
+- PostgreSQL 16 with pgvector
+- pgvector on PostgreSQL 15
+- Qdrant
 
 ## Decision Outcome
 
-Chosen option: PostgreSQL 16, because PostgreSQL with the pgvector extension stores document metadata and vector embeddings in a single database, avoiding a separate vector service. At this scale, pgvector similarity search is fast enough for a handful of users and small documents.
+Chosen option: PostgreSQL 16 with pgvector, because Approved stack. pgvector provides 768-dimensional vector similarity search inside the relational database, avoiding a separate vector service.
 
 ## Consequences
 
-Running PostgreSQL as a container on EC2 means the operator is responsible for backups and updates. For this lightweight scope that is acceptable.
+pgvector's HNSW or IVFFLAT indexes are less performant than a dedicated vector DB at very large scale, but sufficient for MVP document volumes.
 <!-- sdlc:auto:end adr -->

@@ -2,16 +2,15 @@
 openapi: 3.1.0
 info:
   title: Simple RAG chatbot without login
-  version: architecture-v1
+  version: architecture-v2
   description: Designed API from the approved architecture (not extracted from code).
 paths:
   /api/chat:
     post:
-      summary: Submit a question grounded in the user's uploaded documents. The backend
-        embeds the question, performs pgvector similari
-      description: Submit a question grounded in the user's uploaded documents. The
-        backend embeds the question, performs pgvector similarity search, and generates
-        an answer with Gemini 2.5 Flash.
+      summary: Send a question and receive a RAG-grounded answer from retrieved document
+        chunks.
+      description: Send a question and receive a RAG-grounded answer from retrieved
+        document chunks.
       operationId: post_api_chat
       parameters: []
       requestBody:
@@ -19,56 +18,73 @@ paths:
           application/json:
             schema:
               type: object
-              description: 'application/json: { question: string, browser_uuid: string
-                UUID }'
+              description: '{ query: string } with X-Browser-UUID header'
       responses:
         '200':
-          description: '200 OK: { answer: string }. 200 OK with answer indicating
-            no documents available or no relevant information found when applicable.
-            400 Bad Request for missing browser_uuid or question.'
+          description: '200 { answer: string }'
       security:
       - bearerAuth: []
-  /api/documents/upload:
+  /api/documents:
+    get:
+      summary: List all documents belonging to the browser UUID.
+      description: List all documents belonging to the browser UUID.
+      operationId: get_api_documents
+      parameters: []
+      responses:
+        '200':
+          description: 200 [{ document_id, filename, status, created_at }]
+      security:
+      - bearerAuth: []
     post:
-      summary: Upload a PDF, TXT, or DOCX document for server-side parsing, chunking,
-        and embedding. The file is stored in MinIO and em
-      description: Upload a PDF, TXT, or DOCX document for server-side parsing, chunking,
-        and embedding. The file is stored in MinIO and embeddings are persisted in
-        PostgreSQL with pgvector.
-      operationId: post_api_documents_upload
+      summary: 'Upload a document file for processing. Accepted formats: PDF, TXT,
+        DOCX. Returns a document ID and initial status.'
+      description: 'Upload a document file for processing. Accepted formats: PDF,
+        TXT, DOCX. Returns a document ID and initial status.'
+      operationId: post_api_documents
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              description: 'multipart/form-data with fields: file (UploadFile), browser_uuid
-                (string UUID). Only PDF, TXT, and DOCX files are accepted.'
+              description: multipart/form-data with file and browser_uuid (header
+                X-Browser-UUID)
       responses:
         '200':
-          description: '201 Created: { id, filename, file_type, status: ''ready'',
-            created_at }. 400 Bad Request for unsupported formats or missing browser_uuid.
-            500 Internal Server Error for processing failures.'
+          description: '202 { document_id, status: ''pending'' }'
       security:
       - bearerAuth: []
-  /api/documents/{browser_uuid}:
-    get:
-      summary: Check whether documents have been uploaded for the given browser UUID.
-        Used by the frontend to determine whether to prom
-      description: Check whether documents have been uploaded for the given browser
-        UUID. Used by the frontend to determine whether to prompt the user to upload
-        documents before chatting.
-      operationId: get_api_documents_browser_uuid
+  /api/documents/{document_id}:
+    delete:
+      summary: Delete a document and its chunks and vectors for the browser UUID.
+      description: Delete a document and its chunks and vectors for the browser UUID.
+      operationId: delete_api_documents_document_id
       parameters:
-      - name: browser_uuid
+      - name: document_id
         in: path
         required: true
         schema:
           type: string
       responses:
         '200':
-          description: '200 OK: { has_documents: boolean, document_count: integer
-            }. 400 Bad Request for invalid UUID format.'
+          description: 204 No Content
+      security:
+      - bearerAuth: []
+  /api/documents/{document_id}/status:
+    get:
+      summary: Poll the processing status of an uploaded document.
+      description: Poll the processing status of an uploaded document.
+      operationId: get_api_documents_document_id_status
+      parameters:
+      - name: document_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: '200 { document_id, status: ''pending''|''processing''|''ready''|''failed'',
+            chunk_count }'
       security:
       - bearerAuth: []
 components:
@@ -90,14 +106,18 @@ components:
           type: string
         file_type:
           type: string
+        file_size_bytes:
+          type: string
         minio_object_key:
           type: string
         status:
           type: string
+        chunk_count:
+          type: integer
         created_at:
           type: string
           format: date-time
-        last_active_at:
+        last_activity_at:
           type: string
           format: date-time
       required:
@@ -105,17 +125,21 @@ components:
       - browser_uuid
       - filename
       - file_type
+      - file_size_bytes
       - minio_object_key
       - status
       - created_at
-      - last_active_at
-    document_chunks:
+      - last_activity_at
+    chunks:
       type: object
       properties:
         id:
           type: string
           format: uuid
         document_id:
+          type: string
+          format: uuid
+        browser_uuid:
           type: string
           format: uuid
         chunk_index:
@@ -130,7 +154,20 @@ components:
       required:
       - id
       - document_id
+      - browser_uuid
       - chunk_index
       - content
       - embedding
       - created_at
+    user_activity:
+      type: object
+      properties:
+        browser_uuid:
+          type: string
+          format: uuid
+        last_activity_at:
+          type: string
+          format: date-time
+      required:
+      - browser_uuid
+      - last_activity_at

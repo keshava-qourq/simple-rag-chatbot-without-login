@@ -11,9 +11,11 @@
 <!-- sdlc:auto:start drift -->
 **Designed but missing:**
 
-- GET /api/documents/{browser_uuid}
+- DELETE /api/documents/{document_id}
+- GET /api/documents
+- GET /api/documents/{document_id}/status
 - POST /api/chat
-- POST /api/documents/upload
+- POST /api/documents
 <!-- sdlc:auto:end drift -->
 
 <!-- sdlc:auto:start source -->

@@ -1,24 +1,24 @@
 <!-- sdlc:auto:start adr -->
 # ADR-0001: Use React 19 for Frontend
 
-Status: Proposed  
+Status: Accepted  
 Date: 2026-10-22
 
 ## Context and Problem Statement
 
-Which Frontend technology does the project use? Decided in architecture v1.
+Which Frontend technology does the project use? Decided in architecture v2.
 
 ## Considered Options
 
 - React 19
-- Next.js
 - Vue 3
+- Svelte 5
 
 ## Decision Outcome
 
-Chosen option: React 19, because The frontend is a pure client-side chat interface with file upload and localStorage-based conversation history. No server-side rendering, SEO, or complex routing is needed, so a React SPA is the simplest fit.
+Chosen option: React 19, because Approved stack. SPA with chat UI, file upload, and localStorage-based conversation history fits a client-rendered React application.
 
 ## Consequences
 
-No SSR means the initial load requires JavaScript. Conversation history in localStorage is lost when switching browsers or devices, which is accepted per NFR-005.
+No SSR means initial load requires JS, but the app is a single interactive page so SEO is irrelevant.
 <!-- sdlc:auto:end adr -->

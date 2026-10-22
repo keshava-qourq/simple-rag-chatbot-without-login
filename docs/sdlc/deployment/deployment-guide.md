@@ -9,12 +9,12 @@ Pushes to `main` run `.github/workflows/deploy.yml`, which builds the API image 
 <!-- sdlc:auto:start environments -->
 | Name | Service | Runtime | Scaling | Environment |
 |---|---|---|---|---|
-| User Browser | React 19 SPA served as static files | Browser | N/A (client-side) | prod |
-| EC2 Application Host | Docker Compose on AWS EC2 (t3.small) | Docker | Single instance | prod |
-| FastAPI Container | FastAPI 0.115 application server | Docker (uvicorn) | Single container | prod |
-| PostgreSQL Container | PostgreSQL 16 with pgvector extension | Docker | Single container | prod |
-| MinIO Container | MinIO S3-compatible object storage (bitnamilegacy/minio:2024.10.13) | Docker | Single container | prod |
-| Google Gemini API | External SaaS AI provider | SaaS | Managed by Google | prod |
+| EC2 Host | AWS EC2 | Ubuntu 22.04 | single instance | dev |
+| Nginx Container | Nginx | Docker | single container | dev |
+| Frontend Static Files | React 19 build | Nginx-served static dist | single | dev |
+| FastAPI Container | FastAPI 0.115 | Docker (uvicorn) | single container | dev |
+| PostgreSQL Container | PostgreSQL 16 with pgvector | Docker | single container | dev |
+| MinIO Container | MinIO | Docker | single container | dev |
 <!-- sdlc:auto:end environments -->
 
 <!-- sdlc:auto:start live -->
@@ -24,15 +24,15 @@ _Not deployed yet._
 <!-- sdlc:auto:start topology -->
 ```mermaid
 graph LR
-  n_User_Browser["User Browser<br/>React 19 SPA served as static files"]
-  n_EC2_Application_Host["EC2 Application Host<br/>Docker Compose on AWS EC2 (t3.small)"]
-  n_FastAPI_Container["FastAPI Container<br/>FastAPI 0.115 application server"]
-  n_PostgreSQL_Container["PostgreSQL Container<br/>PostgreSQL 16 with pgvector extension"]
-  n_MinIO_Container["MinIO Container<br/>MinIO S3-compatible object storage (bitnamilegacy/minio:2024.10.13)"]
-  n_Google_Gemini_API["Google Gemini API<br/>External SaaS AI provider"]
-  n_User_Browser -->|"HTTPS"| n_FastAPI_Container
-  n_FastAPI_Container -->|"TCP (internal Docker network)"| n_PostgreSQL_Container
-  n_FastAPI_Container -->|"HTTP (internal Docker network)"| n_MinIO_Container
-  n_FastAPI_Container -->|"HTTPS"| n_Google_Gemini_API
+  n_EC2_Host["EC2 Host<br/>AWS EC2"]
+  n_Nginx_Container["Nginx Container<br/>Nginx"]
+  n_Frontend_Static_Files["Frontend Static Files<br/>React 19 build"]
+  n_FastAPI_Container["FastAPI Container<br/>FastAPI 0.115"]
+  n_PostgreSQL_Container["PostgreSQL Container<br/>PostgreSQL 16 with pgvector"]
+  n_MinIO_Container["MinIO Container<br/>MinIO"]
+  n_Nginx_Container -->|"HTTP (internal)"| n_FastAPI_Container
+  n_Nginx_Container -->|"HTTP (internal)"| n_Frontend_Static_Files
+  n_FastAPI_Container -->|"TCP (internal)"| n_PostgreSQL_Container
+  n_FastAPI_Container -->|"HTTP (internal)"| n_MinIO_Container
 ```
 <!-- sdlc:auto:end topology -->

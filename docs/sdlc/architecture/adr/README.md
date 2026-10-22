@@ -3,8 +3,8 @@
 <!-- sdlc:auto:start index -->
 | ADR | Layer | Choice | Status |
 |---|---|---|---|
-| [ADR-0001](frontend.md) | Frontend | React 19 | Proposed |
-| [ADR-0002](backend.md) | Backend | FastAPI 0.115 | Proposed |
-| [ADR-0003](database.md) | Database | PostgreSQL 16 | Proposed |
-| [ADR-0004](cloud.md) | Cloud | AWS | Proposed |
+| [ADR-0001](frontend.md) | Frontend | React 19 | Accepted |
+| [ADR-0002](backend.md) | Backend | FastAPI 0.115 | Accepted |
+| [ADR-0003](database.md) | Database | PostgreSQL 16 with pgvector | Accepted |
+| [ADR-0004](cloud.md) | Cloud | AWS | Accepted |
 <!-- sdlc:auto:end index -->
