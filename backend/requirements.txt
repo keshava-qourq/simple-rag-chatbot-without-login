@@ -16,4 +16,6 @@ ruff>=0.6
 
 # BEGIN QUORQ ARCHITECTURE PACKAGES
 minio>=7.2
+# multipart/form-data parsing for FastAPI's UploadFile, used by POST /api/documents
+python-multipart==0.0.12
 # END QUORQ ARCHITECTURE PACKAGES
