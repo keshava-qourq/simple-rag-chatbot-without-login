@@ -1,9 +1,10 @@
-"""POST /api/documents and GET /api/documents.
+"""POST /api/documents, GET /api/documents and GET /api/documents/{id}/status.
 
 Uploads are scoped by the `X-Browser-UUID` header rather than any login --
 this application has no accounts, so that header is the only tenant
-boundary (NFR-002). Only PDF, TXT and DOCX are accepted; text extraction,
-embeddings, chat and delete are out of scope here.
+boundary (NFR-002). Only PDF, TXT and DOCX are accepted. Extraction (US-005-1)
+runs right after a successful upload, dispatched by content type in
+`app.text_extraction`; chunking and embeddings are out of scope here.
 """
 
 import io
@@ -11,14 +12,14 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Header, HTTPException, UploadFile
 from minio import Minio
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import SessionLocal, get_db
 from app.models import Document
-from app.schemas import DocumentOut, DocumentUploadResponse
-from app.services import minio_bucket, minio_client
+from app.schemas import DocumentOut, DocumentStatusOut, DocumentUploadResponse
+from app.services import minio_bucket, minio_client, process_document
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -48,8 +49,21 @@ def _ensure_bucket(client: Minio, bucket: str) -> None:
         client.make_bucket(bucket)
 
 
+def _run_extraction(document_id: str, data: bytes) -> None:
+    """Runs in a background task with its own session: the request's session
+    is closed by the time this fires."""
+    session = SessionLocal()
+    try:
+        document = session.query(Document).filter(Document.id == document_id).first()
+        if document is not None:
+            process_document(session, document, data)
+    finally:
+        session.close()
+
+
 @router.post("", response_model=DocumentUploadResponse)
 async def upload_document(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),  # noqa: B008 -- FastAPI's documented pattern
     browser_uuid: str = Depends(_require_browser_uuid),  # noqa: B008
     db: Session = Depends(get_db),  # noqa: B008
@@ -94,6 +108,11 @@ async def upload_document(
     db.commit()
     db.refresh(document)
 
+    # Extraction runs right after a successful upload, but after the response
+    # for *this* request has been sent -- the row stays "pending" until then,
+    # moving to "processed" or "failed" once it runs.
+    background_tasks.add_task(_run_extraction, document.id, data)
+
     return DocumentUploadResponse(
         id=document.id, filename=document.filename, status=document.status
     )
@@ -110,3 +129,19 @@ async def list_documents(
         .order_by(Document.created_at.desc())
         .all()
     )
+
+
+@router.get("/{document_id}/status", response_model=DocumentStatusOut)
+async def get_document_status(
+    document_id: str,
+    browser_uuid: str = Depends(_require_browser_uuid),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> DocumentStatusOut:
+    document = (
+        db.query(Document)
+        .filter(Document.id == document_id, Document.browser_uuid == browser_uuid)
+        .first()
+    )
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found.")
+    return DocumentStatusOut(id=document.id, status=document.status, error=document.error_message)

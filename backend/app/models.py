@@ -7,7 +7,7 @@ before it creates the schema.
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, Integer, String
+from sqlalchemy import DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -33,6 +33,11 @@ class Document(Base):
     minio_object_key: Mapped[str] = mapped_column(String(512), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
     chunk_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Additive columns for US-005-1 (text extraction): the full extracted text,
+    # and the error message when extraction fails, so the status endpoint can
+    # report why without the caller re-reading the raw file.
+    extracted_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )

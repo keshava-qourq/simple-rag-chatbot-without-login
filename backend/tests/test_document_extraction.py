@@ -1,15 +1,9 @@
 """AC-010/011/012: text extraction per format, and graceful failure on a corrupt file.
 
-The extraction service (US-005-1) is not in `app/services.py` yet, so these
-tests try two tiers:
-
-1. If `app.services.extract_text(data: bytes, file_type: str) -> str` exists,
-   call it directly and assert the exact extracted text -- the strongest
-   check the acceptance criteria ask for.
-2. Regardless, exercise the public pipeline (upload, then poll
-   `/api/documents/{id}/status`) and assert it reaches a terminal status
-   without raising. If that polling endpoint is also not built yet, these
-   skip/xfail rather than fail, per the concurrent-build note on this ticket.
+Exercises both `app.services.extract_text` (also re-exported from
+`app.text_extraction`) directly, and the full pipeline: upload, then poll
+`/api/documents/{id}/status` until it reaches a terminal status ("processed"
+or "failed", per this ticket's contract).
 
 Both tiers are offline: MinIO is the in-memory fake from conftest, and the
 session-wide fixture there fakes any google-genai client an embedding step
@@ -23,15 +17,12 @@ import time
 import uuid
 
 import pytest
-
 from conftest import build_docx, build_minimal_pdf
 
 
 def _extract_text():
-    try:
-        from app.services import extract_text
-    except ImportError:
-        pytest.skip("app.services.extract_text not implemented yet (US-005-1 pending)")
+    from app.services import extract_text
+
     return extract_text
 
 
@@ -70,10 +61,8 @@ def _poll_status(client, document_id: str, browser_uuid: str, timeout: float = 2
         response = client.get(
             f"/api/documents/{document_id}/status", headers={"X-Browser-UUID": browser_uuid}
         )
-        if response.status_code == 404:
-            pytest.xfail("GET /api/documents/{id}/status not implemented yet (pending)")
         last_body = response.json()
-        if last_body.get("status") in {"ready", "failed"}:
+        if last_body.get("status") in {"processed", "failed"}:
             return last_body
         time.sleep(0.05)
     return last_body
@@ -99,8 +88,7 @@ def test_upload_of_valid_file_reaches_ready_status(
     document_id = upload.json()["id"]
 
     final = _poll_status(client, document_id, browser_uuid)
-    assert final.get("status") == "ready", final
-    assert final.get("chunk_count")
+    assert final.get("status") == "processed", final
 
 
 def test_upload_of_valid_docx_reaches_ready_status(client, fake_minio, browser_uuid) -> None:
@@ -121,8 +109,7 @@ def test_upload_of_valid_docx_reaches_ready_status(client, fake_minio, browser_u
     document_id = upload.json()["id"]
 
     final = _poll_status(client, document_id, browser_uuid)
-    assert final.get("status") == "ready", final
-    assert final.get("chunk_count")
+    assert final.get("status") == "processed", final
 
 
 def test_corrupt_pdf_marks_document_failed_rather_than_raising(
@@ -146,6 +133,7 @@ def test_corrupt_pdf_marks_document_failed_rather_than_raising(
 
     final = _poll_status(client, document_id, browser_uuid)
     assert final.get("status") == "failed", final
+    assert final.get("error")
 
 
 def test_list_and_status_never_leak_another_browser_uuids_corrupt_document(

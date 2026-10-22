@@ -45,3 +45,13 @@ class DocumentOut(BaseModel):
     chunk_count: int | None = None
     created_at: datetime
     last_activity_at: datetime
+
+
+class DocumentStatusOut(BaseModel):
+    """What GET /api/documents/{document_id}/status returns."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    status: str
+    error: str | None = None

@@ -18,4 +18,7 @@ ruff>=0.6
 minio>=7.2
 # multipart/form-data parsing for FastAPI's UploadFile, used by POST /api/documents
 python-multipart==0.0.12
+# PDF and DOCX text extraction for POST /api/documents processing (US-005-1)
+pypdf==6.21.2
+python-docx==1.2.0
 # END QUORQ ARCHITECTURE PACKAGES
