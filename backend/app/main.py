@@ -17,7 +17,10 @@ from app.services import configured_services
 
 app = FastAPI(
     title="Simple RAG chatbot without login",
-    description="Build simple RAG chatbot without login but with history use gemini-2.5-flash for answers and gemini-embedding-001 for embeddings",
+    description=(
+        "Build simple RAG chatbot without login but with history use "
+        "gemini-2.5-flash for answers and gemini-embedding-001 for embeddings"
+    ),
     version="0.1.0",
 )
 
